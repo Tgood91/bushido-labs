@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bushido Trading Protocol - Cyber-Minimalist DEX Terminal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        kuro: '#08090C',
+                        sumi: '#101218',
+                        katana: '#1F2430',
+                        crimson: '#FF2A5F',
+                        cyanNeon: '#00F2FE',
+                        gold: '#FFD700',
+                        muted: '#94A3B8'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for BVS Radar Chart & Sparklines -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar & Cyberpunk Glows */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #08090C; }
+        ::-webkit-scrollbar-thumb { background: #1F2430; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF2A5F; }
+        .glow-crimson { box-shadow: 0 0 20px rgba(255, 42, 95, 0.25); }
+        .glow-cyan { box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); }
+        .glass-panel { background: rgba(16, 18, 24, 0.85); backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-[#08090C] text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- App Container -->
+    <div class="flex flex-1 h-screen overflow-hidden">
+
+        <!-- Left Sidebar Navigation -->
+        <aside class="w-64 bg-[#101218] border-r border-[#1F2430] flex flex-col justify-between hidden lg:flex select-none z-20">
+            <div>
+                <!-- Logo Header -->
+                <div class="p-6 flex items-center space-x-3 border-b border-[#1F2430]">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF2A5F] to-amber-600 flex items-center justify-center glow-crimson">
+                        <i class="fa-solid fa-torii-gate text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-black text-sm tracking-widest text-white uppercase flex items-center space-x-1">
+                            <span>BUSHIDO</span>
+                            <span class="text-[#FF2A5F]">武</span>
+                        </h1>
+                        <p class="text-[10px] font-mono text-[#94A3B8] tracking-tighter">TRADING PROTOCOL</p>
+                    </div>
+                </div>
+
+                <!-- Nav Links -->
+                <nav class="p-4 space-y-1.5 font-medium text-xs">
+                    <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-[#FF2A5F]/15 text-[#FF2A5F] border border-[#FF2A5F]/30 transition-all">
+                        <i class="fa-solid fa-grid-2 text-base w-5"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" onclick="switchTab('trade')" id="nav-trade" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-right-left text-base w-5"></i>
+                        <span>Trade</span>
+                    </a>
+                    <a href="#" onclick="switchTab('portfolio')" id="nav-portfolio" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-wallet text-base w-5"></i>
+                        <span>Portfolio</span>
+                    </a>
+                    <a href="#" onclick="switchTab('strategies')" id="nav-strategies" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-brain text-base w-5"></i>
+                        <span>Strategies</span>
+                    </a>
+                    <a href="#" onclick="switchTab('bvs')" id="nav-bvs" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-shield-halved text-base w-5"></i>
+                        <span>BVS Score</span>
+                    </a>
+                    <a href="#" onclick="switchTab('transactions')" id="nav-transactions" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-clock-rotate-left text-base w-5"></i>
+                        <span>Transactions</span>
+                    </a>
+                    <a href="#" onclick="switchTab('analytics')" id="nav-analytics" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-chart-line text-base w-5"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#" onclick="switchTab('alerts')" id="nav-alerts" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-bell text-base w-5"></i>
+                        <span>Alerts</span>
+                    </a>
+                    <a href="#" onclick="switchTab('settings')" id="nav-settings" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all">
+                        <i class="fa-solid fa-gear text-base w-5"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Left Sidebar Footer Widgets -->
+            <div class="p-4 space-y-4 border-t border-[#1F2430] bg-[#08090C]/50">
+                <!-- BVS Overall Summary Box -->
+                <div class="p-4 rounded-xl bg-[#101218] border border-[#1F2430] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-[#00F2FE]/5 rounded-full blur-xl pointer-events-none"></div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-mono text-[#94A3B8] uppercase">BVS OVERALL</span>
+                        <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">EXCELLENT</span>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span class="text-2xl font-black text-white">92.3</span>
+                        <span class="text-xs font-mono text-[#94A3B8]">/ 100</span>
+                    </div>
+                    <div class="w-full bg-[#1F2430] h-1.5 rounded-full mt-3 overflow-hidden">
+                        <div class="bg-gradient-to-r from-[#00F2FE] to-[#FF2A5F] h-full rounded-full" style="width: 92.3%;"></div>
+                    </div>
+                </div>
+
+                <!-- Bushido Quote -->
+                <div class="px-2">
+                    <p class="text-[11px] italic text-[#94A3B8] font-serif leading-relaxed">
+                        "The trader who masters virtue, masters the market."
+                    </p>
+                    <p class="text-[10px] font-mono text-[#FF2A5F] mt-1">— Bushidø</p>
+                </div>
+
+                <!-- Version & Status -->
+                <div class="flex items-center justify-between text-[10px] font-mono text-[#94A3B8] pt-2 border-t border-[#1F2430]">
+                    <span>v1.0.0</span>
+                    <span class="flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-emerald-400">All Systems Operational</span>
+                    </span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden bg-[#08090C]">
+
+            <!-- Top Header Bar -->
+            <header class="h-16 bg-[#101218] border-b border-[#1F2430] px-6 flex items-center justify-between z-10 flex-shrink-0">
+                <!-- Mobile Logo / Title -->
+                <div class="flex items-center space-x-4 lg:hidden">
+                    <div class="w-8 h-8 rounded-lg bg-[#FF2A5F] flex items-center justify-center text-white">
+                        <i class="fa-solid fa-torii-gate"></i>
+                    </div>
+                    <span class="font-black text-sm tracking-widest">BUSHIDO</span>
+                </div>
+
+                <!-- Live Ticker Stats -->
+                <div class="hidden md:flex items-center space-x-6 overflow-x-auto py-2 no-scrollbar">
+                    <div class="flex items-center space-x-2 bg-[#08090C] px-3 py-1.5 rounded-lg border border-[#1F2430]">
+                        <span class="text-xs font-mono text-[#94A3B8]">ETH</span>
+                        <span class="text-xs font-mono font-bold text-white">$3,451.32</span>
+                        <span class="text-[11px] font-mono text-emerald-400 flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+3.2%</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-[#08090C] px-3 py-1.5 rounded-lg border border-[#1F2430]">
+                        <span class="text-xs font-mono text-[#94A3B8]">AERO</span>
+                        <span class="text-xs font-mono font-bold text-white">$1.23</span>
+                        <span class="text-[11px] font-mono text-emerald-400 flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+5.21%</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-[#08090C] px-3 py-1.5 rounded-lg border border-[#1F2430]">
+                        <span class="text-xs font-mono text-[#94A3B8]">VIRTUAL</span>
+                        <span class="text-xs font-mono font-bold text-white">$2.18</span>
+                        <span class="text-[11px] font-mono text-rose-400 flex items-center"><i class="fa-solid fa-arrow-trend-down mr-1"></i>-1.02%</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-[#08090C] px-3 py-1.5 rounded-lg border border-[#1F2430]">
+                        <span class="text-xs font-mono text-[#94A3B8]">DEGEN</span>
+                        <span class="text-xs font-mono font-bold text-white">$0.0124</span>
+                        <span class="text-[11px] font-mono text-emerald-400 flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+8.71%</span>
+                    </div>
+                </div>
+
+                <!-- Right Header Actions: Wallet & Network -->
+                <div class="flex items-center space-x-3">
+                    <!-- Wallet Connected Pill -->
+                    <div class="flex items-center space-x-2 bg-[#08090C] border border-[#1F2430] hover:border-[#FF2A5F] px-3.5 py-2 rounded-xl cursor-pointer transition-all" onclick="openWalletModal()">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-xs font-mono font-bold text-slate-200">0x7A3F...9c28</span>
+                        <span class="text-[10px] font-mono text-[#94A3B8] bg-[#1F2430] px-2 py-0.5 rounded">Connected</span>
+                    </div>
+
+                    <!-- Base Network Indicator Dropdown -->
+                    <div class="relative">
+                        <button onclick="toggleNetworkDropdown()" class="flex items-center space-x-2 bg-[#08090C] border border-[#1F2430] hover:border-[#00F2FE] px-3.5 py-2 rounded-xl text-xs font-mono text-white transition-all">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                            <span>Base</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-[#94A3B8]"></i>
+                        </button>
+                        <div id="network-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-[#101218] border border-[#1F2430] rounded-xl shadow-2xl py-2 z-50 font-mono text-xs">
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 hover:bg-[#1F2430] text-[#00F2FE]">
+                                <span class="flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-[#00F2FE]"></span><span>Base Mainnet</span></span>
+                                <i class="fa-solid fa-check"></i>
+                            </a>
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 hover:bg-[#1F2430] text-slate-400 hover:text-white">
+                                <span class="flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-blue-400"></span><span>Arbitrum One</span></span>
+                            </a>
+                            <a href="#" class="flex items-center justify-between px-4 py-2.5 hover:bg-[#1F2430] text-slate-400 hover:text-white">
+                                <span class="flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-red-400"></span><span>Optimism</span></span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Settings Gear Button -->
+                    <button onclick="openSpotSwapModal()" class="w-10 h-10 rounded-xl bg-[#08090C] border border-[#1F2430] hover:border-[#FF2A5F] flex items-center justify-center text-[#94A3B8] hover:text-white transition-all">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Body (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-6 flex flex-col xl:flex-row gap-6">
+
+                <!-- Left Column (Hero Banner, Portfolio, Strategies, Activity) -->
+                <div class="flex-1 space-y-6 min-w-0">
+
+                    <!-- Top Hero Banner / BVS Radar & Cyber Art Card -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        
+                        <!-- BVS Virtue Score Radar Card (Cols 1-5) -->
+                        <div class="lg:col-span-5 bg-[#101218] border border-[#1F2430] rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex items-center space-x-2">
+                                    <h2 class="text-xs font-mono font-bold tracking-widest uppercase text-slate-300">BVS - Bushido Virtue Score</h2>
+                                    <i class="fa-solid fa-circle-info text-[#94A3B8] text-xs cursor-pointer" title="Calculated from execution discipline, risk management, and loyalty."></i>
+                                </div>
+                                <span class="text-[10px] font-mono text-[#00F2FE] bg-[#00F2FE]/10 px-2.5 py-0.5 rounded-full">Active</span>
+                            </div>
+
+                            <div class="flex items-center justify-center py-2 relative">
+                                <!-- Radar Chart Canvas Container -->
+                                <div class="w-52 h-52 relative">
+                                    <canvas id="bvsRadarChart"></canvas>
+                                </div>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-1">
+                                    <span class="text-2xl font-black text-white">92.3</span>
+                                    <span class="text-[10px] font-mono text-[#94A3B8] uppercase">OVERALL</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-[#1F2430] text-[11px] font-mono text-[#94A3B8]">
+                                <span class="flex items-center space-x-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <span>Last updated: 2m ago</span>
+                                </span>
+                                <button onclick="switchTab('bvs')" class="text-[#00F2FE] hover:underline font-bold">Inspect All 8 Virtues →</button>
+                            </div>
+                        </div>
+
+                        <!-- Japanese Cyber-Minimalist Art Card (Cols 6-12) -->
+                        <div class="lg:col-span-7 bg-[#101218] border border-[#1F2430] rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between bg-gradient-to-br from-[#101218] via-[#0e121c] to-[#08090C]">
+                            <!-- Background Moon & Water reflection aesthetics -->
+                            <div class="absolute top-4 right-6 w-16 h-16 rounded-full bg-gradient-to-tr from-amber-200 to-amber-100 shadow-[0_0_30px_rgba(255,215,0,0.4)]"></div>
+                            <div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-cyan-950/40 to-transparent pointer-events-none"></div>
+
+                            <div class="z-10 flex items-center justify-between">
+                                <div class="space-y-1">
+                                    <span class="text-[10px] font-mono text-[#00F2FE] uppercase tracking-widest bg-[#00F2FE]/10 px-2 py-0.5 rounded">CYBER-MINIMALIST SANCTUARY</span>
+                                    <h3 class="text-lg font-bold text-white tracking-wide">Ma (間) & Shibui (渋い) Terminal</h3>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <span class="px-2.5 py-1 rounded-lg bg-[#1F2430] text-[11px] font-mono text-amber-400 font-bold border border-amber-500/30">🌕 Base Moon</span>
+                                </div>
+                            </div>
+
+                            <!-- Pixel Art Centerpiece (Heart & Tamagotchi Creature) -->
+                            <div class="z-10 flex flex-col items-center justify-center my-6 space-y-3">
+                                <div class="relative flex items-center justify-center">
+                                    <!-- Pixel Heart SVG -->
+                                    <div class="text-[#00F2FE] text-6xl md:text-7xl drop-shadow-[0_0_15px_rgba(0,242,254,0.6)] animate-pulse">
+                                        🩵
+                                    </div>
+                                    <!-- Tamagotchi Pet Inside -->
+                                    <div class="absolute text-2xl animate-bounce">
+                                        🦊
+                                    </div>
+                                </div>
+                                <p class="text-xs font-mono text-[#94A3B8] tracking-widest text-center">LIQUIDITY GUARDIAN ACTIVE • CHIN_SEI_01</p>
+                            </div>
+
+                            <div class="z-10 flex items-center justify-between pt-4 border-t border-[#1F2430]/60 text-xs font-mono text-slate-300">
+                                <div class="flex items-center space-x-3">
+                                    <span>Execution Latency: <strong class="text-emerald-400">12ms</strong></span>
+                                    <span>•</span>
+                                    <span>MEV Shield: <strong class="text-[#00F2FE]">Active</strong></span>
+                                </div>
+                                <button onclick="openSpotSwapModal()" class="px-4 py-1.5 rounded-xl bg-[#FF2A5F] hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-wider transition shadow-lg shadow-[#FF2A5F]/20">
+                                    Launch Terminal
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Middle Row: Portfolio Overview, Active Strategies, Recent Activity -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                        <!-- Portfolio Overview Card (Cols 1-6) -->
+                        <div class="lg:col-span-6 bg-[#101218] border border-[#1F2430] rounded-2xl p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center space-x-2">
+                                        <h3 class="text-xs font-mono font-bold tracking-widest uppercase text-slate-300">Portfolio Overview</h3>
+                                        <i class="fa-solid fa-eye text-[#94A3B8] text-xs cursor-pointer" onclick="togglePortfolioVisibility()" title="Toggle Balance Visibility"></i>
+                                    </div>
+                                    <button onclick="switchTab('portfolio')" class="text-xs font-mono text-[#00F2FE] hover:underline">View full portfolio →</button>
+                                </div>
+
+                                <div class="space-y-1 mb-6">
+                                    <span class="text-[10px] font-mono text-[#94A3B8] uppercase">Total Value (USD)</span>
+                                    <div class="flex items-baseline space-x-3">
+                                        <h4 id="portfolio-total-val" class="text-3xl font-black text-white">$24,381.72</h4>
+                                        <span class="text-xs font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">+1,842.21 (+8.17%) 24h</span>
+                                    </div>
+                                </div>
+
+                                <!-- Mini Sparkline Chart -->
+                                <div class="h-16 mb-4 relative">
+                                    <canvas id="portfolioSparkline"></canvas>
+                                </div>
+
+                                <!-- Asset Table -->
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left font-mono text-xs">
+                                        <thead>
+                                            <tr class="text-[#94A3B8] border-b border-[#1F2430] pb-2">
+                                                <th class="pb-2 font-normal">Asset</th>
+                                                <th class="pb-2 font-normal text-right">Balance</th>
+                                                <th class="pb-2 font-normal text-right">Value (USD)</th>
+                                                <th class="pb-2 font-normal text-right">24h %</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-[#1F2430]/40">
+                                            <tr class="hover:bg-[#1F2430]/30 transition">
+                                                <td class="py-2.5 flex items-center space-x-2">
+                                                    <span class="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">USDC</span>
+                                                    <span class="font-bold text-white">USDC</span>
+                                                </td>
+                                                <td class="py-2.5 text-right">6,582.41</td>
+                                                <td class="py-2.5 text-right font-bold text-white">$6,582.41</td>
+                                                <td class="py-2.5 text-right text-emerald-400">+0.01%</td>
+                                            </tr>
+                                            <tr class="hover:bg-[#1F2430]/30 transition">
+                                                <td class="py-2.5 flex items-center space-x-2">
+                                                    <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-[10px]">Ξ</span>
+                                                    <span class="font-bold text-white">ETH</span>
+                                                </td>
+                                                <td class="py-2.5 text-right">1.2456</td>
+                                                <td class="py-2.5 text-right font-bold text-white">$4,299.42</td>
+                                                <td class="py-2.5 text-right text-emerald-400">+2.41%</td>
+                                            </tr>
+                                            <tr class="hover:bg-[#1F2430]/30 transition">
+                                                <td class="py-2.5 flex items-center space-x-2">
+                                                    <span class="w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-[10px]">AERO</span>
+                                                    <span class="font-bold text-white">AERO</span>
+                                                </td>
+                                                <td class="py-2.5 text-right">2,340.12</td>
+                                                <td class="py-2.5 text-right font-bold text-white">$2,878.95</td>
+                                                <td class="py-2.5 text-right text-emerald-400">+5.21%</td>
+                                            </tr>
+                                            <tr class="hover:bg-[#1F2430]/30 transition">
+                                                <td class="py-2.5 flex items-center space-x-2">
+                                                    <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-[10px]">VIRT</span>
+                                                    <span class="font-bold text-white">VIRTUAL</span>
+                                                </td>
+                                                <td class="py-2.5 text-right">1,102.33</td>
+                                                <td class="py-2.5 text-right font-bold text-white">$2,405.09</td>
+                                                <td class="py-2.5 text-right text-rose-400">-1.02%</td>
+                                            </tr>
+                                            <tr class="hover:bg-[#1F2430]/30 transition">
+                                                <td class="py-2.5 flex items-center space-x-2">
+                                                    <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-[10px]">DGN</span>
+                                                    <span class="font-bold text-white">DEGEN</span>
+                                                </td>
+                                                <td class="py-2.5 text-right">125,230</td>
+                                                <td class="py-2.5 text-right font-bold text-white">$1,563.85</td>
+                                                <td class="py-2.5 text-right text-emerald-400">+8.71%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Strategies Card (Cols 7-12) -->
+                        <div class="lg:col-span-6 bg-[#101218] border border-[#1F2430] rounded-2xl p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center space-x-2">
+                                        <h3 class="text-xs font-mono font-bold tracking-widest uppercase text-slate-300">Active Strategies</h3>
+                                        <span class="w-2 h-2 rounded-full bg-[#00F2FE] animate-ping"></span>
+                                    </div>
+                                    <button onclick="switchTab('strategies')" class="text-xs font-mono text-[#00F2FE] hover:underline">View all →</button>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <!-- Strategy 1: Seykota Trend Follower -->
+                                    <div class="bg-[#08090C] border border-[#1F2430] rounded-xl p-4 space-y-3 hover:border-[#00F2FE] transition">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold text-lg">
+                                                    🦊
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+                                                        <span>Seykota</span>
+                                                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">ACTIVE</span>
+                                                    </h4>
+                                                    <p class="text-[11px] font-mono text-[#94A3B8]">Trend Follower</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="text-[10px] font-mono text-[#94A3B8] uppercase">Confidence</span>
+                                                <div class="text-sm font-mono font-bold text-[#00F2FE]">87%</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[#1F2430] font-mono text-xs">
+                                            <div>
+                                                <span class="text-[10px] text-[#94A3B8] block">Position Size</span>
+                                                <span class="text-white font-bold">15.3%</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] text-[#94A3B8] block">P&L (24h)</span>
+                                                <span class="text-emerald-400 font-bold">+$423.18</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] text-[#94A3B8] block">Last Signal</span>
+                                                <span class="text-emerald-400 font-bold">BUY AERO/USDC</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Strategy 2: Druckenmiller Macro Master -->
+                                    <div class="bg-[#08090C] border border-[#1F2430] rounded-xl p-4 space-y-3 hover:border-[#FF2A5F] transition">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold text-lg">
+                                                    🦁
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+                                                        <span>Druckenmiller</span>
+                                                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">MONITORING</span>
+                                                    </h4>
+                                                    <p class="text-[11px] font-mono text-[#94A3B8]">Macro Master</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="text-[10px] font-mono text-[#94A3B8] uppercase">Confidence</span>
+                                                <div class="text-sm font-mono font-bold text-amber-400">62%</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-[#1F2430] font-mono text-xs">
+                                            <div>
+                                                <span class="text-[10px] text-[#94A3B8] block">Position Size</span>
+                                                <span class="text-white font-bold">8.7%</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] text-[#94A3B8] block">P&L (24h)</span>
+                                                <span class="text-emerald-400 font-bold">+$128.44</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] text-[#94A3B8] block">Last Signal</span>
+                                                <span class="text-amber-400 font-bold">HOLD</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 mt-4 border-t border-[#1F2430] flex justify-between items-center font-mono text-xs">
+                                <span class="text-[#94A3B8]">Autonomous agent cluster online</span>
+                                <button onclick="switchTab('strategies')" class="text-[#00F2FE] hover:underline font-bold">Manage strategies →</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Recent Activity Feed (Full width of left column) -->
+                    <div class="bg-[#101218] border border-[#1F2430] rounded-2xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xs font-mono font-bold tracking-widest uppercase text-slate-300">Recent Activity</h3>
+                            <button onclick="switchTab('transactions')" class="text-xs font-mono text-[#00F2FE] hover:underline">View all →</button>
+                        </div>
+
+                        <div class="space-y-3 font-mono text-xs">
+                            <div class="flex items-center justify-between p-3 bg-[#08090C] border border-[#1F2430] rounded-xl hover:border-slate-700 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-right-left"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-bold flex items-center space-x-2">
+                                            <span>EXECUTE SWAP</span>
+                                            <span class="text-[10px] text-[#94A3B8] font-normal">DEGEN → USDC</span>
+                                        </div>
+                                        <p class="text-[10px] text-[#94A3B8]">Virtue: Makoto (Honesty)</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-slate-400 text-right">2,450 <span class="text-[10px] text-[#94A3B8] block">14:23 UTC</span></span>
+                                    <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-check text-[10px]"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-[#08090C] border border-[#1F2430] rounded-xl hover:border-slate-700 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-signal"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-bold flex items-center space-x-2">
+                                            <span>SIGNAL GENERATED</span>
+                                            <span class="text-[10px] text-[#94A3B8] font-normal">Seykota: BUY AERO</span>
+                                        </div>
+                                        <p class="text-[10px] text-[#94A3B8]">Virtue: Gi (Righteousness)</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-amber-400 text-right">Pending <span class="text-[10px] text-[#94A3B8] block">14:15 UTC</span></span>
+                                    <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-clock text-[10px]"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-[#08090C] border border-[#1F2430] rounded-xl hover:border-slate-700 transition">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-sliders"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-bold flex items-center space-x-2">
+                                            <span>SLIPPAGE CHECK</span>
+                                            <span class="text-[10px] text-[#94A3B8] font-normal">HIGHER / USDC</span>
+                                        </div>
+                                        <p class="text-[10px] text-[#94A3B8]">Virtue: Jin (Benevolence)</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-emerald-400 text-right">0.43% <span class="text-[10px] text-[#94A3B8] block">14:08 UTC</span></span>
+                                    <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-check text-[10px]"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right-Hand Swap & Trade Panel (Always visible in layout) -->
+                <div class="w-full xl:w-96 flex-shrink-0 flex flex-col space-y-6">
+
+                    <!-- Swap & Trade Card -->
+                    <div class="bg-[#101218] border border-[#1F2430] rounded-2xl p-5 flex flex-col justify-between shadow-2xl relative">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xs font-mono font-bold tracking-widest uppercase text-white flex items-center space-x-2">
+                                <span>Swap & Trade</span>
+                            </h3>
+                            <button onclick="openSpotSwapModal()" class="text-[#94A3B8] hover:text-[#00F2FE] transition" title="Open Advanced Router Settings">
+                                <i class="fa-solid fa-gear"></i>
+                            </button>
+                        </div>
+
+                        <!-- Swap / Limit Tabs -->
+                        <div class="grid grid-cols-2 bg-[#08090C] p-1 rounded-xl border border-[#1F2430] mb-4 text-xs font-mono font-bold">
+                            <button id="tab-swap" onclick="switchSwapTab('swap')" class="py-2 rounded-lg bg-[#1F2430] text-white transition">Swap</button>
+                            <button id="tab-limit" onclick="switchSwapTab('limit')" class="py-2 rounded-lg text-[#94A3B8] hover:text-white transition">Limit</button>
+                        </div>
+
+                        <!-- From Token Container -->
+                        <div class="bg-[#08090C] border border-[#1F2430] rounded-xl p-3.5 space-y-2 mb-2">
+                            <div class="flex justify-between text-xs font-mono text-[#94A3B8]">
+                                <span>From</span>
+                                <span>Balance: 6,582.41</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <button onclick="openTokenSelector('from')" class="flex items-center space-x-2 bg-[#101218] hover:bg-[#1F2430] border border-[#1F2430] px-3 py-1.5 rounded-lg text-white font-mono text-xs transition">
+                                    <span class="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">💵</span>
+                                    <span id="from-token-symbol" class="font-bold">USDC</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-[#94A3B8]"></i>
+                                </button>
+                                <input type="number" id="from-amount-input" value="1000" oninput="calculateSwapReceive()" class="bg-transparent text-right font-mono font-bold text-xl text-white w-40 focus:outline-none">
+                            </div>
+                            <div class="flex justify-between text-[11px] font-mono text-[#94A3B8]">
+                                <span id="from-usd-val">USD $1,000.00</span>
+                                <button onclick="setMaxBalance()" class="text-[#00F2FE] hover:underline font-bold">MAX</button>
+                            </div>
+                        </div>
+
+                        <!-- Inversion Directional Toggle Button -->
+                        <div class="flex justify-center -my-3.5 z-10">
+                            <button onclick="invertTokens()" class="w-9 h-9 rounded-xl bg-[#101218] border border-[#1F2430] hover:border-[#FF2A5F] text-[#FF2A5F] flex items-center justify-center shadow-lg transition transform hover:rotate-180 duration-300">
+                                <i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- To Token Container -->
+                        <div class="bg-[#08090C] border border-[#1F2430] rounded-xl p-3.5 space-y-2 mt-2 mb-4">
+                            <div class="flex justify-between text-xs font-mono text-[#94A3B8]">
+                                <span>To (Estimated)</span>
+                                <span>Balance: 1.2456</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <button onclick="openTokenSelector('to')" class="flex items-center space-x-2 bg-[#101218] hover:bg-[#1F2430] border border-[#1F2430] px-3 py-1.5 rounded-lg text-white font-mono text-xs transition">
+                                    <span class="w-5 h-5 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-[10px]">Ξ</span>
+                                    <span id="to-token-symbol" class="font-bold">ETH</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-[#94A3B8]"></i>
+                                </button>
+                                <input type="text" id="to-amount-output" readonly value="0.2889" class="bg-transparent text-right font-mono font-bold text-xl text-white w-40 focus:outline-none cursor-not-allowed">
+                            </div>
+                            <div class="flex justify-between text-[11px] font-mono text-[#94A3B8]">
+                                <span id="to-usd-val">$999.12 (-0.09%)</span>
+                                <span class="text-emerald-400">Best Route</span>
+                            </div>
+                        </div>
+
+                        <!-- Trade Execution Metrics Bar -->
+                        <div class="space-y-2 bg-[#08090C] p-3 rounded-xl border border-[#1F2430] font-mono text-xs mb-4">
+                            <div class="flex justify-between items-center text-[#94A3B8]">
+                                <span>Rate</span>
+                                <span class="text-white flex items-center space-x-1">
+                                    <span id="exchange-rate-display">1 USDC = 0.0002889 ETH</span>
+                                    <i class="fa-solid fa-rotate text-[10px] text-[#00F2FE] cursor-pointer" onclick="refreshQuote()"></i>
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center text-[#94A3B8]">
+                                <span>Slippage Tolerance</span>
+                                <button onclick="openSpotSwapModal()" class="text-white font-bold hover:text-[#00F2FE] flex items-center space-x-1">
+                                    <span id="slippage-display">0.50%</span>
+                                    <i class="fa-solid fa-pen text-[9px] text-[#94A3B8]"></i>
+                                </button>
+                            </div>
+                            <div class="flex justify-between items-center text-[#94A3B8]">
+                                <span>Network Fee (Est.)</span>
+                                <span class="text-white font-bold">$0.12 <span class="text-[10px] text-emerald-400 font-normal">(0.000035 ETH)</span></span>
+                            </div>
+                            <div class="flex justify-between items-center text-[#94A3B8]">
+                                <span>Route</span>
+                                <span class="text-[#00F2FE] font-bold flex items-center space-x-1">
+                                    <span id="route-display">Aerodrome v3</span>
+                                    <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- BVS Impact Card -->
+                        <div class="bg-[#08090C] border border-[#1F2430] rounded-xl p-3.5 space-y-3 mb-5 font-mono text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[#94A3B8] flex items-center space-x-1">
+                                    <span>BVS Impact</span>
+                                    <i class="fa-solid fa-circle-info text-[10px]" title="Virtue points earned upon successful execution"></i>
+                                </span>
+                                <span class="text-emerald-400 font-bold">+1.2 <span class="text-[10px] text-[#94A3B8] font-normal">(Overall Impact)</span></span>
+                            </div>
+
+                            <!-- Individual Virtue Breakdowns -->
+                            <div class="grid grid-cols-4 gap-2 text-center pt-2 border-t border-[#1F2430]">
+                                <div class="bg-[#101218] p-1.5 rounded-lg border border-[#1F2430]">
+                                    <span class="text-[9px] text-[#94A3B8] block">Gi</span>
+                                    <span class="text-emerald-400 font-bold">+2</span>
+                                </div>
+                                <div class="bg-[#101218] p-1.5 rounded-lg border border-[#1F2430]">
+                                    <span class="text-[9px] text-[#94A3B8] block">Yu</span>
+                                    <span class="text-emerald-400 font-bold">+0.5</span>
+                                </div>
+                                <div class="bg-[#101218] p-1.5 rounded-lg border border-[#1F2430]">
+                                    <span class="text-[9px] text-[#94A3B8] block">Jin</span>
+                                    <span class="text-emerald-400 font-bold">+1.1</span>
+                                </div>
+                                <div class="bg-[#101218] p-1.5 rounded-lg border border-[#1F2430]">
+                                    <span class="text-[9px] text-[#94A3B8] block">Rei</span>
+                                    <span class="text-emerald-400 font-bold">+0.8</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-[#101218] p-1.5 rounded-lg border border-[#1F2430]">
+                                    <span class="text-[9px] text-[#94A3B8] block">Makoto</span>
+                                    <span class="text-emerald-400 font-bold">+1.5</span>
+                                </div>
+                                <div class="bg-[#101218] p-1.5 rounded-lg border border-[#1F2430]">
+                                    <span class="text-[9px] text-[#94A3B8] block">Meiyo</span>
+                                    <span class="text-emerald-400 font-bold">+0.9</span>
+                                </div>
+                                <div class="bg-[#101218] p-1.5 rounded-lg border border-[#1F2430]">
+                                    <span class="text-[9px] text-[#94A3B8] block">Chugi</span>
+                                    <span class="text-emerald-400 font-bold">+1.0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Execution Action Button -->
+                        <button onclick="executeSwapAction()" id="swap-execute-btn" class="w-full py-4 rounded-xl bg-[#FF2A5F] hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-widest transition shadow-lg shadow-[#FF2A5F]/25 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-right-left"></i>
+                            <span>Review Swap</span>
+                        </button>
+
+                        <div class="mt-3 text-center text-[10px] font-mono text-[#94A3B8]">
+                            Powered by <span class="text-[#00F2FE] font-bold">BASE MCP & 0x v2</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Spot Swap Modal (As seen in Reference Image 2) -->
+    <div id="spot-swap-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
+        <div class="w-full max-w-lg bg-[#101218] border border-[#1F2430] rounded-2xl p-6 shadow-2xl relative flex flex-col max-h-[90vh] overflow-y-auto">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-[#1F2430]">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg bg-[#FF2A5F]/20 text-[#FF2A5F] flex items-center justify-center">
+                        <i class="fa-solid fa-right-left"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Spot Swap</h3>
+                        <p class="text-[10px] font-mono text-[#94A3B8]">Swap tokens on Base with your preferred router and slippage settings.</p>
+                    </div>
+                </div>
+                <button onclick="closeSpotSwapModal()" class="text-[#94A3B8] hover:text-white p-2 rounded-lg bg-[#08090C] border border-[#1F2430]">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body Swap Inputs Summary -->
+            <div class="py-4 space-y-3">
+                <div class="bg-[#08090C] p-3.5 rounded-xl border border-[#1F2430] flex items-center justify-between text-xs font-mono">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-[10px]">💵</span>
+                        <div>
+                            <span class="text-white font-bold block">USDC</span>
+                            <span class="text-[10px] text-[#94A3B8]">USD Coin</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-bold text-base">1000 <span class="text-[10px] text-[#94A3B8] block font-normal">$1,000.00</span></span>
+                </div>
+
+                <div class="flex justify-center -my-2">
+                    <div class="w-7 h-7 rounded-full bg-[#101218] border border-[#1F2430] flex items-center justify-center text-[#FF2A5F]">
+                        <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                    </div>
+                </div>
+
+                <div class="bg-[#08090C] p-3.5 rounded-xl border border-[#1F2430] flex items-center justify-between text-xs font-mono">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-[10px]">Ξ</span>
+                        <div>
+                            <span class="text-white font-bold block">ETH</span>
+                            <span class="text-[10px] text-[#94A3B8]">Ethereum</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-white font-bold text-base">0.2889</span>
+                        <span class="text-[10px] text-[#94A3B8] block">Est. Receive $999.12 (-0.09%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Router & Slippage Settings Section -->
+            <div class="space-y-4 pt-2 border-t border-[#1F2430]">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-[#00F2FE]"></i>
+                        <span>Router & Slippage Settings</span>
+                    </h4>
+                    <span class="text-[10px] font-mono text-emerald-400">Base 8453</span>
+                </div>
+
+                <!-- Router Selection Options -->
+                <div class="space-y-2">
+                    <span class="text-[10px] font-mono text-[#94A3B8] uppercase">Router Selection</span>
+
+                    <!-- Option 1: 1inch v5 -->
+                    <div onclick="selectRouter('1inch v5 Aggregation Router', '0x1111111254...')" id="router-opt-1" class="p-3 rounded-xl bg-[#08090C] border border-[#FF2A5F] cursor-pointer flex items-center justify-between transition">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-[#FF2A5F] flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-shield"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold text-white">1inch v5 Aggregation Router</h5>
+                                <p class="text-[10px] font-mono text-[#94A3B8]">Best rates • Multi-DEX</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 font-mono text-[10px]">
+                            <span class="text-[#94A3B8]">0x111111125421ca6...</span>
+                            <span class="w-4 h-4 rounded-full border-2 border-[#FF2A5F] flex items-center justify-center"><span class="w-2 h-2 rounded-full bg-[#FF2A5F]"></span></span>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: LI.FI Diamond -->
+                    <div onclick="selectRouter('LI.FI Diamond', '0x1231deb6f5...')" id="router-opt-2" class="p-3 rounded-xl bg-[#08090C] border border-[#1F2430] hover:border-slate-700 cursor-pointer flex items-center justify-between transition">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-gem"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold text-white">LI.FI Diamond</h5>
+                                <p class="text-[10px] font-mono text-[#94A3B8]">Fallback Router • Cross-chain</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 font-mono text-[10px]">
+                            <span class="text-[#94A3B8]">0x1231deb6f5749ef6...</span>
+                            <span class="w-4 h-4 rounded-full border-2 border-[#1F2430] flex items-center justify-center"></span>
+                        </div>
+                    </div>
+
+                    <!-- Option 3: 0x Protocol Router -->
+                    <div onclick="selectRouter('0x Protocol Router', '0x6f6f5693b9...')" id="router-opt-3" class="p-3 rounded-xl bg-[#08090C] border border-[#1F2430] hover:border-slate-700 cursor-pointer flex items-center justify-between transition">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-code"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold text-white">0x Protocol Router</h5>
+                                <p class="text-[10px] font-mono text-[#94A3B8]">Fallback Router • Advanced</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 font-mono text-[10px]">
+                            <span class="text-[#94A3B8]">0x6f6f5693b99212da7...</span>
+                            <span class="w-4 h-4 rounded-full border-2 border-[#1F2430] flex items-center justify-center"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slippage Tolerance Section -->
+                <div class="space-y-2 pt-2">
+                    <div class="flex justify-between items-center text-xs font-mono">
+                        <span class="text-[#94A3B8] uppercase">Slippage Tolerance</span>
+                        <span id="modal-slippage-value" class="text-[#00F2FE] font-bold">0.50%</span>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button onclick="setSlippage(0.1)" class="flex-1 py-1.5 rounded-lg bg-[#08090C] border border-[#1F2430] hover:border-[#00F2FE] text-xs font-mono text-slate-300 transition">0.1%</button>
+                        <button onclick="setSlippage(0.5)" class="flex-1 py-1.5 rounded-lg bg-[#00F2FE]/20 border border-[#00F2FE] text-xs font-mono text-[#00F2FE] font-bold transition">0.5%</button>
+                        <button onclick="setSlippage(1.0)" class="flex-1 py-1.5 rounded-lg bg-[#08090C] border border-[#1F2430] hover:border-[#00F2FE] text-xs font-mono text-slate-300 transition">1%</button>
+                        <button onclick="setSlippage(2.0)" class="flex-1 py-1.5 rounded-lg bg-[#08090C] border border-[#1F2430] hover:border-[#00F2FE] text-xs font-mono text-slate-300 transition">2%</button>
+                        <button onclick="setSlippage(5.0)" class="flex-1 py-1.5 rounded-lg bg-[#08090C] border border-[#1F2430] hover:border-[#00F2FE] text-xs font-mono text-slate-300 transition">5%</button>
+                    </div>
+
+                    <!-- Range Slider -->
+                    <input type="range" min="0.01" max="7.00" step="0.01" value="0.50" oninput="updateSlippageSlider(this.value)" class="w-full accent-[#FF2A5F] bg-[#08090C] cursor-pointer mt-1">
+                </div>
+
+                <!-- Network Fee Summary inside Modal -->
+                <div class="flex justify-between items-center p-3 rounded-xl bg-[#08090C] border border-[#1F2430] font-mono text-xs">
+                    <span class="text-[#94A3B8]">Network Fee (Est.)</span>
+                    <span class="text-white font-bold">$0.12 <span class="text-[10px] text-emerald-400 font-normal">Estimated with selected router and slippage.</span></span>
+                </div>
+            </div>
+
+            <!-- Modal Footer Action -->
+            <div class="pt-6 mt-4 border-t border-[#1F2430]">
+                <button onclick="confirmSpotSwap()" class="w-full py-3.5 rounded-xl bg-[#FF2A5F] hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-widest transition shadow-lg shadow-[#FF2A5F]/20 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Review Swap</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Wallet Connection & Session Modal -->
+    <div id="wallet-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
+        <div class="w-full max-w-sm bg-[#101218] border border-[#1F2430] rounded-2xl p-6 shadow-2xl space-y-4 font-mono">
+            <div class="flex items-center justify-between border-b border-[#1F2430] pb-3">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
+                    <span class="text-[#FF2A5F]">武</span>
+                    <span>Web3 Wallet Session</span>
+                </h3>
+                <button onclick="closeWalletModal()" class="text-[#94A3B8] hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="bg-[#08090C] p-4 rounded-xl border border-[#1F2430] space-y-3 text-xs">
+                <div class="flex justify-between items-center">
+                    <span class="text-[#94A3B8]">Account:</span>
+                    <span class="text-white font-bold">0x7A3F...9c28</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#94A3B8]">Network:</span>
+                    <span class="text-[#00F2FE]">Base Mainnet (8453)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#94A3B8]">ETH Balance:</span>
+                    <span class="text-emerald-400 font-bold">1.2456 ETH ($4,299.42)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#94A3B8]">USDC Balance:</span>
+                    <span class="text-emerald-400 font-bold">6,582.41 USDC</span>
+                </div>
+            </div>
+
+            <button onclick="disconnectWallet()" class="w-full py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 text-xs font-bold transition">
+                Disconnect Session
+            </button>
+        </div>
+    </div>
+
+    <!-- Token Selector Modal -->
+    <div id="token-selector-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
+        <div class="w-full max-w-sm bg-[#101218] border border-[#1F2430] rounded-2xl p-6 shadow-2xl space-y-4 font-mono">
+            <div class="flex items-center justify-between border-b border-[#1F2430] pb-3">
+                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Select Token</h3>
+                <button onclick="closeTokenSelector()" class="text-[#94A3B8] hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="relative">
+                <input type="text" placeholder="Search by name or paste address..." class="w-full bg-[#08090C] border border-[#1F2430] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#FF2A5F]">
+            </div>
+
+            <div class="space-y-2 max-h-60 overflow-y-auto text-xs">
+                <div onclick="selectTokenItem('USDC', '💵', 'USD Coin')" class="flex items-center justify-between p-3 rounded-xl bg-[#08090C] hover:bg-[#1F2430] cursor-pointer transition">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">💵</span>
+                        <div>
+                            <span class="text-white font-bold block">USDC</span>
+                            <span class="text-[10px] text-[#94A3B8]">USD Coin</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-bold">6,582.41</span>
+                </div>
+
+                <div onclick="selectTokenItem('ETH', 'Ξ', 'Ethereum')" class="flex items-center justify-between p-3 rounded-xl bg-[#08090C] hover:bg-[#1F2430] cursor-pointer transition">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">Ξ</span>
+                        <div>
+                            <span class="text-white font-bold block">ETH</span>
+                            <span class="text-[10px] text-[#94A3B8]">Ethereum</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-bold">1.2456</span>
+                </div>
+
+                <div onclick="selectTokenItem('AERO', '🚀', 'Aerodrome')" class="flex items-center justify-between p-3 rounded-xl bg-[#08090C] hover:bg-[#1F2430] cursor-pointer transition">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center">🚀</span>
+                        <div>
+                            <span class="text-white font-bold block">AERO</span>
+                            <span class="text-[10px] text-[#94A3B8]">Aerodrome</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-bold">2,340.12</span>
+                </div>
+
+                <div onclick="selectTokenItem('VIRTUAL', '🤖', 'Virtual Protocol')" class="flex items-center justify-between p-3 rounded-xl bg-[#08090C] hover:bg-[#1F2430] cursor-pointer transition">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center">🤖</span>
+                        <div>
+                            <span class="text-white font-bold block">VIRTUAL</span>
+                            <span class="text-[10px] text-[#94A3B8]">Virtual Protocol</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-bold">1,102.33</span>
+                </div>
+
+                <div onclick="selectTokenItem('DEGEN', '🐕', 'Degen')]')" class="flex items-center justify-between p-3 rounded-xl bg-[#08090C] hover:bg-[#1F2430] cursor-pointer transition">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">🐕</span>
+                        <div>
+                            <span class="text-white font-bold block">DEGEN</span>
+                            <span class="text-[10px] text-[#94A3B8]">Degen</span>
+                        </div>
+                    </div>
+                    <span class="text-white font-bold">125,230</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-notification" class="hidden fixed bottom-6 right-6 z-50 bg-[#101218] border border-[#00F2FE] text-white px-5 py-3 rounded-xl shadow-2xl font-mono text-xs flex items-center space-x-3 animate-bounce">
+        <i class="fa-solid fa-circle-check text-[#00F2FE] text-base"></i>
+        <span id="toast-message">Action executed successfully on Base.</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- State Management ---
+        let currentTab = 'dashboard';
+        let currentSwapTab = 'swap';
+        let activeTokenSelectorTarget = 'from';
+        let selectedRouterName = '1inch v5 Aggregation Router';
+        let slippageValue = 0.50;
+
+        // --- Chart.js Initializations ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initBVSRadarChart();
+            initPortfolioSparkline();
+        });
+
+        function initBVSRadarChart() {
+            const ctx = document.getElementById('bvsRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Gi (Righteousness)', 'Yu (Courage)', 'Jin (Benevolence)', 'Rei (Respect)', 'Makoto (Honesty)', 'Meiyo (Honor)', 'Chugi (Loyalty)', 'Jisei (Discipline)'],
+                    datasets: [{
+                        data: [94, 78, 85, 88, 95, 81, 89, 90],
+                        backgroundColor: 'rgba(0, 242, 254, 0.15)',
+                        borderColor: '#00F2FE',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#FF2A5F',
+                        pointBorderColor: '#ffffff',
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#FF2A5F'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(31, 36, 48, 0.8)' },
+                            angleLines: { color: 'rgba(31, 36, 48, 0.8)' },
+                            ticks: { display: false, max: 100, min: 0 },
+                            pointLabels: {
+                                color: '#94A3B8',
+                                font: { size: 9, family: 'Fira Code' }
+                            }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function initPortfolioSparkline() {
+            const ctx = document.getElementById('portfolioSparkline').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1d', '12h', '8h', '4h', '2h', 'Now'],
+                    datasets: [{
+                        data: [21400, 21900, 22500, 23100, 23900, 24381.72],
+                        borderColor: '#00F2FE',
+                        backgroundColor: 'rgba(0, 242, 254, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- Navigation Switcher ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+            // Highlight sidebar link
+            document.querySelectorAll('aside nav a').forEach(el => {
+                el.className = "flex items-center space-x-3 px-4 py-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1F2430]/50 transition-all";
+            });
+            const activeLink = document.getElementById(`nav-${tabId}`);
+            if (activeLink) {
+                activeLink.className = "flex items-center space-x-3 px-4 py-3 rounded-xl bg-[#FF2A5F]/15 text-[#FF2A5F] border border-[#FF2A5F]/30 transition-all";
+            }
+            showToast(`Switched to ${tabId.toUpperCase()} view`);
+        }
+
+        // --- Swap Sub-Tab Switcher ---
+        function switchSwapTab(mode) {
+            currentSwapTab = mode;
+            if(mode === 'swap') {
+                document.getElementById('tab-swap').className = "py-2 rounded-lg bg-[#1F2430] text-white transition";
+                document.getElementById('tab-limit').className = "py-2 rounded-lg text-[#94A3B8] hover:text-white transition";
+            } else {
+                document.getElementById('tab-limit').className = "py-2 rounded-lg bg-[#1F2430] text-white transition";
+                document.getElementById('tab-swap').className = "py-2 rounded-lg text-[#94A3B8] hover:text-white transition";
+            }
+        }
+
+        // --- Calculator & Swap Simulation ---
+        function calculateSwapReceive() {
+            const val = parseFloat(document.getElementById('from-amount-input').value) || 0;
+            const rate = 0.0002889;
+            const receive = (val * rate).toFixed(4);
+            const usdVal = (val * 1.0).toFixed(2);
+            document.getElementById('to-amount-output').value = receive;
+            document.getElementById('from-usd-val').innerText = `USD $${usdVal}`;
+            document.getElementById('to-usd-val').innerText = `$${(receive * 3451.32).toFixed(2)} (-0.09%)`;
+        }
+
+        function setMaxBalance() {
+            document.getElementById('from-amount-input').value = '6582.41';
+            calculateSwapReceive();
+        }
+
+        function invertTokens() {
+            const fromSym = document.getElementById('from-token-symbol').innerText;
+            const toSym = document.getElementById('to-token-symbol').innerText;
+            document.getElementById('from-token-symbol').innerText = toSym;
+            document.getElementById('to-token-symbol').innerText = fromSym;
+            calculateSwapReceive();
+            showToast('Inverted swap direction');
+        }
+
+        function refreshQuote() {
+            showToast('Fetching latest 0x v2 & Aerodrome liquidity quote...');
+        }
+
+        // --- Modals Control ---
+        function openSpotSwapModal() {
+            document.getElementById('spot-swap-modal').classList.remove('hidden');
+        }
+        function closeSpotSwapModal() {
+            document.getElementById('spot-swap-modal').classList.add('hidden');
+        }
+
+        function openWalletModal() {
+            document.getElementById('wallet-modal').classList.remove('hidden');
+        }
+        function closeWalletModal() {
+            document.getElementById('wallet-modal').classList.add('hidden');
+        }
+
+        function openTokenSelector(target) {
+            activeTokenSelectorTarget = target;
+            document.getElementById('token-selector-modal').classList.remove('hidden');
+        }
+        function closeTokenSelector() {
+            document.getElementById('token-selector-modal').classList.add('hidden');
+        }
+
+        function selectTokenItem(symbol, icon, name) {
+            if(activeTokenSelectorTarget === 'from') {
+                document.getElementById('from-token-symbol').innerText = symbol;
+            } else {
+                document.getElementById('to-token-symbol').innerText = symbol;
+            }
+            closeTokenSelector();
+            showToast(`Selected token: ${name} (${symbol})`);
+        }
+
+        function toggleNetworkDropdown() {
+            const dropdown = document.getElementById('network-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function togglePortfolioVisibility() {
+            showToast('Portfolio balance visibility toggled');
+        }
+
+        // --- Router & Slippage Selectors ---
+        function selectRouter(name, address) {
+            selectedRouterName = name;
+            document.getElementById('route-display').innerText = name.split(' ')[0] + ' v3';
+            // Update styling
+            ['1', '2', '3'].forEach(id => {
+                const el = document.getElementById(`router-opt-${id}`);
+                el.className = "p-3 rounded-xl bg-[#08090C] border border-[#1F2430] hover:border-slate-700 cursor-pointer flex items-center justify-between transition";
+            });
+            event.currentTarget.className = "p-3 rounded-xl bg-[#08090C] border border-[#FF2A5F] cursor-pointer flex items-center justify-between transition";
+            showToast(`Router updated to ${name}`);
+        }
+
+        function setSlippage(val) {
+            slippageValue = val;
+            document.getElementById('slippage-display').innerText = `${val.toFixed(2)}%`;
+            document.getElementById('modal-slippage-value').innerText = `${val.toFixed(2)}%`;
+            showToast(`Slippage tolerance set to ${val}%`);
+        }
+
+        function updateSlippageSlider(val) {
+            const num = parseFloat(val);
+            slippageValue = num;
+            document.getElementById('slippage-display').innerText = `${num.toFixed(2)}%`;
+            document.getElementById('modal-slippage-value').innerText = `${num.toFixed(2)}%`;
+        }
+
+        function confirmSpotSwap() {
+            closeSpotSwapModal();
+            showToast('Swap parameters locked. Preparing EIP-1193 signature...');
+        }
+
+        function executeSwapAction() {
+            openSpotSwapModal();
+        }
+
+        function disconnectWallet() {
+            closeWalletModal();
+            showToast('Wallet disconnected.');
+        }
+
+        // --- Toast Notification Helper ---
+        function showToast(message) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
