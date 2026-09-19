@@ -1,0 +1,21 @@
+BTG DAO Governance System DocumentationHere is the complete documentation and architecture overview for the BTG DAO on-chain governance system, integrated directly with your Bushido Trading Protocol.OverviewBTG DAO is the on-chain governance engine powering the BTG ecosystem. Built on smart contracts, it grants voting power based on token holdings combined with a wallet's Bushido Virtue Score—an on-chain reputation built from real trading activity and scored across eight traditional virtues.+-------------------+      +-----------------------+      +-------------------+
+|  Bushido Trading  | ---> |  Virtue Audit         | ---> |   MyGovernance    |
+|     Protocol      |      |     Registry          |      |  (Voting Engine)  |
+|  (Swaps & Trades) |      | (Recorder Role Logs)  |      |  (+1% per 100 pts)|
++-------------------+      +-----------------------+      +-------------------+
+Core Components1. BTG1 — Foundation LayerThe baseline infrastructure required for DAO operation:Treasury and fund movement (deposits/withdrawals)Access control and permission managementBase configuration updates2. BTG2 — Virtue Score FrameworkExtends BTG1 by defining the 8-virtue architecture assigned to user wallet addresses:VirtueJapaneseMeaningAcquisition MethodRighteousnessGiJustice / Doing what's rightTrading ActivityCourageYuHeroic courageTrading ActivityBenevolenceJinCompassionTrading ActivityRespectReiPolitenessNon-trade / GovernanceHonestyMakotoSincerityNon-trade / GovernanceHonourMeiyoReputation, honourTrading ActivityDutyChugiLoyaltyNon-trade / GovernanceSelf-ControlJiseiDisciplineTrading Activity3. Virtue Audit RegistryThe smart contract where virtue scores accumulate and persist on-chain:Tracks history for every token swap through the Bushido Trading Protocol.Automatically evaluates trades across 5 metrics: execution quality, conviction, liquidity depth, slippage adherence, and token transparency.Updates the running totals for Gi, Yu, Jin, Meiyo, and Jisei.4. MyGovernance — Voting EnginePowered by OpenZeppelin Governor, this contract calculates final voting weight:Voting Delay: Short holding period after proposal submission before voting begins.Voting Window: ~1 week.Proposal Threshold: 0 tokens required to submit proposals.Timelock Delay: Safety window between a passing vote and execution.How Trades Convert to Voting Power$$\text{Voting Power} = \text{Token Balance} \times \left(1 + \min\left(\frac{\text{Virtue Points}}{100} \times 0.01, \, 1.0\right)\right)$$Conversion Rate: Every 100 virtue points adds +1% extra voting weight.Cap: Voting power bonuses are capped at +100% (virtue can at most double your voting weight).Requirement: Users must hold at least 1 token to utilize a virtue bonus (virtue boosts weight; it does not generate votes without tokens).Proposal Lifecycle[ Submit Proposal ] 
+         │
+         ▼
+[ Short Delay ] ──► [ Voting Opens (~1 Week) ] 
+                             │
+                             ▼
+                  [ Proposal Passes? ]
+                             │
+                      Yes ───┴─── No ──► [ Proposal Rejected ]
+                             │
+                             ▼
+                   [ Safety Delay / Timelock ]
+                             │
+                             ▼
+                   [ Execution Triggered ]
+Security Architecture & PermissionsRecorder Role: Only the address assigned the RECORDER_ROLE in the Virtue Audit Registry can submit trade scores.Security Recommendation: The recorder address should be secured behind a Multi-Signature (Multisig) wallet or secure automated oracle operator.OpenZeppelin Security: Standardized AccessControl, ERC20Votes, and TimelockController contracts ensure time-tested safety guarantees.Deployment SequenceDeploy Virtue Audit Registry: Initialize with your admin wallet address.Grant Recorder Role: Assign RECORDER_ROLE to your backend score calculation service/oracle.Deploy MyGovernance: Pass the deployed Virtue Audit Registry address as its reputation reference source.Tech Stack & LicensingLanguage: Solidity 0.8.20Frameworks: OpenZeppelin Governance, Aragon Framework (BTG1/BTG2 base)Licenses:BTG1 & BTG2: AGPL-3.0-or-laterMyGovernance & Virtue Audit Registry: MIT
