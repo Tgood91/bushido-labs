@@ -1,29 +1,30 @@
-import React, { useState } from 'react';
-import BushidoTradingDashboard from './components/bushido_trading_dashboard';
+import { useState } from 'react';
+import BushidoTradingDashboard from '../bushido_trading_dashboard';
+import './styles.css';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics'>('dashboard');
+  const [connected, setConnected] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      <header className="border-b border-slate-800 p-4 bg-slate-900 flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <h1 className="text-xl font-bold tracking-wider text-red-500">BUSHIDO VIRTUALS TRADES</h1>
-          <span className="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded">v2.5</span>
+    <div className="app-shell">
+      <header className="topbar">
+        <a className="brand" href="#dashboard" aria-label="Bushido Trading Protocol home">
+          <span className="brand-mark">武</span>
+          <span><strong>BUSHIDO</strong><small>TRADING PROTOCOL</small></span>
+        </a>
+        <div className="ticker" aria-label="Market prices">
+          <span><b>ETH</b> $3,451.32 <i>+3.2%</i></span>
+          <span><b>AERO</b> $1.23 <i>+5.2%</i></span>
+          <span><b>VIRTUAL</b> $2.18 <em>-1.02%</em></span>
         </div>
-        <nav className="flex space-x-4">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-3 py-1 rounded text-sm ${activeTab === 'dashboard' ? 'bg-red-600 text-white' : 'text-slate-400 hover:text-white'}`}
-          >
-            Dashboard
+        <div className="top-actions">
+          <button className={connected ? 'wallet connected' : 'wallet'} onClick={() => setConnected(!connected)}>
+            <span className="wallet-dot" />{connected ? '0x7A3F…9c28' : 'Connect wallet'}
           </button>
-        </nav>
+          <button className="network">Base <span>⌄</span></button>
+        </div>
       </header>
-
-      <main className="flex-1 p-6">
-        {activeTab === 'dashboard' && <BushidoTradingDashboard />}
-      </main>
+      <BushidoTradingDashboard connected={connected} onConnect={() => setConnected(true)} />
     </div>
   );
 }
