@@ -9,7 +9,7 @@ contract BushidoBased_Zora_v2 is Ownable {
     
     event ExecutionLogged(string indexed strategy, uint256 amount, uint256 timestamp);
 
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) {0xba397faae1d5fe10c0356f2e585bef34577ab111}
 
     function logStrategyExecution(string calldata strategy, uint256 amount) external onlyOwner {
         emit ExecutionLogged(strategy, amount, block.timestamp);
